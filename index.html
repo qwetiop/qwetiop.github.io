@@ -190,6 +190,16 @@
         </li>
       
         
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-archives">
           <a href="/archives" rel="section">
             
@@ -311,52 +321,14 @@
       
         
           
-            <h1 id="一次快速微信推送bug修改过程"><a href="#一次快速微信推送bug修改过程" class="headerlink" title="一次快速微信推送bug修改过程"></a>一次快速微信推送bug修改过程</h1><h2 id="事件情景"><a href="#事件情景" class="headerlink" title="事件情景"></a>事件情景</h2><p>今天是一个繁忙的日子，本身是星期五一周的最后一天，又赶上雪亮工程最后的交付周期内，感觉整个时间都不够用了。从早上开始一直在和同时配合测试所有功能，了解自贡的演示平台搭建的情况和问题点。基本上每2个小时就要过问一次进度。<br>就在这个忙碌的日志下，掌聚业务又意想不到的发生了异常：<br><strong> 回顾 </strong></p>
-<ol>
-<li>下午15：31的时候，突然看见掌聚微信工作群卡卡在报消息，发了几张截图和消息，大意就是说 <strong>“微信告警发送失败后，告警给我们一堆人发了三遍，正在给客户演示，需要尽快解决”</strong></li>
-<li>周毅马上检测服务器日志，截图说报错<strong>[Wechat] 需要接受者关注</strong>  ，当其中一个用户取消了关注，会照成其他用户也连续发送</li>
-</ol>
-<p>刚好这个时候雪亮的测试工作有个小间隙，为了不影响卡卡的演示和推广工作，就不准备找外包来修复这个问题了，自己看看能不能快速解决。</p>
-<h2 id="操刀开干"><a href="#操刀开干" class="headerlink" title="操刀开干"></a>操刀开干</h2><p>立马打开项目目录，git pull 下最新的代码，打开 phpstorm 这个神器。</p>
-<h2 id="定位"><a href="#定位" class="headerlink" title="定位"></a>定位</h2><h3 id="查看错误日志"><a href="#查看错误日志" class="headerlink" title="查看错误日志"></a>查看错误日志</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">[2016-09-23 15:30:17] production.ERROR: exception &apos;Overtrue\Wechat\Exception&apos; with message &apos;[Wechat]需要接收者关注&apos; in /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/overtrue/wechat/src/Wechat/Http.php:136</div><div class="line">Stack trace:</div><div class="line">#0 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/overtrue/wechat/src/Wechat/Utils/Http.php(105): Overtrue\Wechat\Http-&gt;request(&apos;https://api.wei...&apos;, &apos;POST&apos;, Array, Array)</div><div class="line">#1 [internal function]: Overtrue\Wechat\Utils\Http-&gt;post(&apos;https://api.wei...&apos;, Array)</div><div class="line">#2 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/overtrue/wechat/src/Wechat/Http.php(173): call_user_func_array(Array, Array)</div><div class="line">#3 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/overtrue/wechat/src/Wechat/Notice.php(255): Overtrue\Wechat\Http-&gt;__call(&apos;jsonPost&apos;, Array)</div><div class="line">#4 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/overtrue/wechat/src/Wechat/Notice.php(255): Overtrue\Wechat\Http-&gt;jsonPost(&apos;https://api.wei...&apos;, Array)</div><div class="line">#5 /home/wwwroot/OEM_iwangneng/iwneng.webserver/app/Services/Wechat/WechatNoticeService.php(42): Overtrue\Wechat\Notice-&gt;send()</div><div class="line">#6 /home/wwwroot/OEM_iwangneng/iwneng.webserver/app/Services/Wechat/WechatNoticeService.php(52): App\Services\Wechat\WechatNoticeService-&gt;notice(&apos;ouPMDuJAtKGM3DW...&apos;, &apos;tu3gCcXtHi2KqMj...&apos;, Array, &apos;https://wechat....&apos;, &apos;#F00&apos;)</div><div class="line">#7 /home/wwwroot/OEM_iwangneng/iwneng.webserver/app/Jobs/SendWeChatNotify.php(108): App\Services\Wechat\WechatNoticeService-&gt;noticeList(Array, &apos;tu3gCcXtHi2KqMj...&apos;, Array, &apos;https://wechat....&apos;)</div><div class="line">#8 /home/wwwroot/OEM_iwangneng/iwneng.webserver/app/Jobs/SendWeChatNotify.php(67): App\Jobs\SendWeChatNotify-&gt;sendNotify(Array, Object(App\NotifyMsg), Object(App\Services\Wechat\WechatNoticeService))</div><div class="line">#9 [internal function]: App\Jobs\SendWeChatNotify-&gt;handle()</div><div class="line">#10 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Container/Container.php(507): call_user_func_array(Array, Array)</div><div class="line">#11 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Bus/Dispatcher.php(192): Illuminate\Container\Container-&gt;call(Array)</div><div class="line">#12 [internal function]: Illuminate\Bus\Dispatcher-&gt;Illuminate\Bus\&#123;closure&#125;(Object(App\Jobs\SendWeChatNotify))</div><div class="line">#13 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(139): call_user_func(Object(Closure), Object(App\Jobs\SendWeChatNotify))</div><div class="line">#14 [internal function]: Illuminate\Pipeline\Pipeline-&gt;Illuminate\Pipeline\&#123;closure&#125;(Object(App\Jobs\SendWeChatNotify))</div><div class="line">#15 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(App\Jobs\SendWeChatNotify))</div><div class="line">#16 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Bus/Dispatcher.php(204): Illuminate\Pipeline\Pipeline-&gt;then(Object(Closure))</div><div class="line">#17 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Queue/CallQueuedHandler.php(43): Illuminate\Bus\Dispatcher-&gt;dispatchNow(Object(App\Jobs\SendWeChatNotify), Object(Closure))</div><div class="line">#18 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Queue/Jobs/Job.php(129): Illuminate\Queue\CallQueuedHandler-&gt;call(Object(Illuminate\Queue\Jobs\RedisJob), Array)</div><div class="line">#19 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Queue/Jobs/RedisJob.php(50): Illuminate\Queue\Jobs\Job-&gt;resolveAndFire(Array)</div><div class="line">#20 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Queue/Worker.php(208): Illuminate\Queue\Jobs\RedisJob-&gt;fire()</div><div class="line">#21 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Queue/Worker.php(159): Illuminate\Queue\Worker-&gt;process(&apos;redis&apos;, Object(Illuminate\Queue\Jobs\RedisJob), &apos;3&apos;, 0)</div><div class="line">#22 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Queue/Worker.php(111): Illuminate\Queue\Worker-&gt;pop(NULL, &apos;default&apos;, 0, &apos;3&apos;, &apos;3&apos;)</div><div class="line">#23 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Queue/Worker.php(87): Illuminate\Queue\Worker-&gt;runNextJobForDaemon(NULL, &apos;default&apos;, 0, &apos;3&apos;, &apos;3&apos;)</div><div class="line">#24 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Queue/Console/WorkCommand.php(103): Illuminate\Queue\Worker-&gt;daemon(NULL, &apos;default&apos;, 0, 128, &apos;3&apos;, &apos;3&apos;)</div><div class="line">#25 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Queue/Console/WorkCommand.php(71): Illuminate\Queue\Console\WorkCommand-&gt;runWorker(NULL, &apos;default&apos;, 0, 128, true)</div><div class="line">#26 [internal function]: Illuminate\Queue\Console\WorkCommand-&gt;fire()</div><div class="line">#27 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Container/Container.php(507): call_user_func_array(Array, Array)</div><div class="line">#28 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Console/Command.php(150): Illuminate\Container\Container-&gt;call(Array)</div><div class="line">#29 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/symfony/console/Command/Command.php(256): Illuminate\Console\Command-&gt;execute(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))</div><div class="line">#30 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Console/Command.php(136): Symfony\Component\Console\Command\Command-&gt;run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))</div><div class="line">#31 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/symfony/console/Application.php(841): Illuminate\Console\Command-&gt;run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))</div><div class="line">#32 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/symfony/console/Application.php(189): Symfony\Component\Console\Application-&gt;doRunCommand(Object(Illuminate\Queue\Console\WorkCommand), Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))</div><div class="line">#33 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/symfony/console/Application.php(120): Symfony\Component\Console\Application-&gt;doRun(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))</div><div class="line">#34 /home/wwwroot/OEM_iwangneng/iwneng.webserver/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(107): Symfony\Component\Console\Application-&gt;run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))</div><div class="line">#35 /home/wwwroot/OEM_iwangneng/iwneng.webserver/artisan(36): Illuminate\Foundation\Console\Kernel-&gt;handle(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))</div><div class="line">#36 &#123;main&#125;</div></pre></td></tr></table></figure>
-<p>从中可以看到</p>
-<ul>
-<li>错误消息是 <strong>‘[Wechat]需要接收者关注’</strong></li>
-<li>出错的主要文件和函数是 <strong>WechatNoticeService.php(42)</strong></li>
-</ul>
-<h3 id="跟踪调用链"><a href="#跟踪调用链" class="headerlink" title="跟踪调用链"></a>跟踪调用链</h3><ul>
-<li>打开vendor/overtrue/wechat/src/Wechat/Http.php:136 发现出现问题的时候会抛出exception</li>
-<li>打开WechatNoticeService文件，定位到42行，发现是在notice 函数调用wechat 库进行微信推送，同时在noticeList 函数中对所有发送列表进行用户拆分逐个发送<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">noticeList</span><span class="params">($toUsers, $templateId, array $data, $url , $color = <span class="string">'#F00'</span>)</span></span></div><div class="line">    &#123;</div><div class="line">        $result = <span class="keyword">false</span>;</div><div class="line"></div><div class="line">        <span class="keyword">if</span>($toUsers &amp;&amp; is_array($toUsers)) &#123;</div><div class="line"></div><div class="line">            <span class="keyword">foreach</span>($toUsers <span class="keyword">as</span> $to) &#123;</div><div class="line">                $result = <span class="keyword">$this</span>-&gt;notice($to, $templateId, $data, $url, $color);</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">return</span> $result;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> $result;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>继续跟踪到调用链，发现是</p>
-<ul>
-<li>SendWeChatNotify::handle</li>
-<li>SendWeChatNotify::sendNotify</li>
-<li>WechatNoticeService::noticeList</li>
-</ul>
-<h3 id="问题定位"><a href="#问题定位" class="headerlink" title="问题定位"></a>问题定位</h3><p>问题已经很清楚了，在noticeList 函数循环中对发送操作没有做异常保护，当出现某个号码发送失败的时候，会引起exception 全局处理</p>
-<h3 id="修正问题"><a href="#修正问题" class="headerlink" title="修正问题"></a>修正问题</h3><p>解决就很清楚了，可以分为3种：</p>
-<ul>
-<li>快速解决方案：<pre><code>在noticeList 中加上 异常处理，这样一个用户发送失败不会影响其他的用户发送
-</code></pre></li>
-<li>优化方案：<pre><code>发现发送失败的时候，根据失败原因进行分类，如果发现是 **&apos;[Wechat]需要接收者关注&apos;**错误，需要抛出一个event，在event处理过程中把 wechat 用户的bind 取消，避免下次还重复给此用户发送微信推送。不过这是一个被动策略，不能主动的发现用户取消了关注公众号。
-</code></pre></li>
-<li>终极方案：<pre><code>需要开启一个反向服务，提供给微信回调，当用户取消关注的时候能够主动取消用户的bind。
-</code></pre></li>
-</ul>
-<p>当然此处为了快速解决问题，我选择了零时解决方案，加上异常处理，修改函数为<br><figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">noticeList</span><span class="params">($toUsers, $templateId, array $data, $url , $color = <span class="string">'#F00'</span>)</span></span></div><div class="line">    &#123;</div><div class="line">        $result = <span class="keyword">false</span>;</div><div class="line"></div><div class="line">        <span class="keyword">if</span>($toUsers &amp;&amp; is_array($toUsers)) &#123;</div><div class="line"></div><div class="line">            <span class="keyword">foreach</span>($toUsers <span class="keyword">as</span> $to) &#123;</div><div class="line">                <span class="keyword">try</span> &#123;</div><div class="line">                    $result = <span class="keyword">$this</span>-&gt;notice($to, $templateId, $data, $url, $color);</div><div class="line">                &#125;<span class="keyword">catch</span>(\<span class="keyword">Exception</span> $e) &#123;</div><div class="line">                    <span class="comment">//<span class="doctag">todo:</span> 当用户取消关注的时候unbind 微信用户</span></div><div class="line">                    Log::info(<span class="keyword">self</span>::TAG.<span class="string">' '</span>.$e-&gt;getMessage());</div><div class="line">                    $result = <span class="keyword">false</span>;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> $result;</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
-<h3 id="提交并上线"><a href="#提交并上线" class="headerlink" title="提交并上线"></a>提交并上线</h3><p>ok，问题修复。<br>git commit<br>git push<br>把代码提交推送到coding<br>在coding 上把代码merge 到master<br>然后ssh 到服务器项目目录下 git pull，问题得到快速解决。</p>
-<h2 id="效率总结"><a href="#效率总结" class="headerlink" title="效率总结"></a>效率总结</h2><p>从发现问题的15：31 到部署解决时间为14：15分，大概整个过程花费45分钟。<br><strong>对于不熟悉php，不熟悉laravel开发框架的我来说，我认为是高效的了。</strong></p>
-<h2 id="遗留"><a href="#遗留" class="headerlink" title="遗留"></a>遗留</h2><p>由于此处没有使用终极方案解决，在内部还隐藏着隐患，会造成重复给未关注的用户 push消息，造成微信错误，当错误次数多后有可能造成微信停业务的风险。</p>
-<h2 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h2><ol>
-<li>平时多练功，战时少流血。快速定位并解决问题，降低客户的不满意度，提高销售的成功率。</li>
-<li>好的工具能带来更快的效率，用好phpstorm,tortoisegit ，everthing，Total Commander</li>
-<li>遇到事情不要怕麻烦，不要因为不熟悉和不懂而畏惧，去干就行了。</li>
-<li>思考要有逻辑性，才能快速的发现问题的根源，逻辑性是通过不断的训练出来的。</li>
-</ol>
+          一次快速微信推送bug修改过程事件情景今天是一个繁忙的日子，本身是星期五一周的最后一天，又赶上雪亮工程最后的交付周期内，感觉整个时间都不够用了。从早上开始一直在和同时配合测试所有功能，了解自贡的演示平台搭建的情况和问题点。基本上每2个小时就要过问一次进度。就在这个忙碌的日志下，掌聚业务又意想不到的发
+          ...
 
-          
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/09/24/一次快速微信推送bug修改过程/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -467,19 +439,14 @@
       
         
           
-            <h1 id="幼儿教学中的刻意练习"><a href="#幼儿教学中的刻意练习" class="headerlink" title="幼儿教学中的刻意练习"></a>幼儿教学中的刻意练习</h1><p>正确的学习一定是处于学习区，既不是舒适区，也不是畏惧区。学习区一定是不舒服的，一定会有一定的困难，这个需要不断的强化其思维让其了解本质。总是不断地去疏导，让她养成习惯，不再畏惧学习区。同时学习的过程，应该是几个方面同时进行的，因为刚开始的时候，小朋友总是有很多还没有开发的领域，这都需要学习和锻炼，在每个方面都能够互相印证和最容易养成习惯。比如锻炼，练习书法，游泳，围棋，在刚起步的时候都会有点的困难，但进入正常轨道的就会好得多。在围棋学习的过程中特别典型，刚开始非常不愿意去上课，每次上课都要哭闹，这个时候一定要帮助其解决这个畏惧的情绪。根据痘痘的性格，用说教是不行的，那我就采用强制的办法。即使不想上课，也必须到教室门口在这儿站着，陪着同学们一起度过这个课程。最后觉得站着也是无聊的，还不如给同学们一起玩儿吧。慢慢的上围棋就变成了一种习以为常的事情，从刚开始要大人送，同时还要大人陪着上到最后自己上，这些都需要家长和小朋友们一起努力的。课后一般我会进行几个问题的讨论，比如今天学到什么新的方法了，今天又胜利了，还是失败了，感觉怎么样，帮助加深其印象，表现不错就买个冰淇淋奖励下，慢慢建立起成就感。</p>
-<p>要想取得好的结果，一定要在学习区进行刻意练习，刻意练习有两个方面的元素，一是反复练习，第二个就是正确的方法，这个在万万没想到里面有详细的说明。最生动的例子就是在运动员的生涯中进行练习，大部分时间都是枯燥的分解动作。</p>
-<p>在豆豆的学习过程中，比较典型的应用就是跳绳和游泳。刚开始跳绳一上来就是整体动作，他会觉得非常难，只能跳一两个。后来针对这个问题进行研究，对整体动作进行分解，分解为单臂甩绳、双臂跳绳和跳跃，每个动作进行反复的练习，最后再把整个动作连贯起来，整体动作。这样效果非常好，迅速掌握了技能。</p>
-<p>同时进入学习区的时候还要找到正确的方法，这就是我所说的套路或者说模式。比如在豆豆学习的过程中，老师要求语文的复习和预习。刚开始问豆豆，预习和复习分成几步，这位小朋友还完全不知道，怎么样才能正确的预习和复习。这个时候我就要提醒她老师有怎么讲过，然后结合老师讲的和她自己的一个情况，然后再帮助她整理出几个步骤，每次复习和预习的时候都按照这个步骤来，这个方法才刚开始，需要不断的强化，帮助形成习惯的力量。同理还有数学练习检查的套路和怎么检查的方法；英语绘本和课外兴趣书籍阅读的套路和方法，要形成非重点泛读，重点内容精读的交叉攻势，最重要的是精读的结束一定要变成自己语言组织的阅读记录。阅读记录有几个好处:仔细理解阅读对象；提炼重点；语言组织；逻辑结构；书写练字等。但是难点还是坚持，刚开始精读不一定要多，但是希望每篇都要做好。</p>
-<p>刻意练习的过程中也要和娱乐活动进行穿插，好玩是小朋友的天性，创造和社交能力需要在玩的过程中建立和完善，同时也能在玩的过程中植入很多学习的元素。比如豆豆喜欢看电视，我就计划每周陪伴她看一些纪录片，比如旅行主题，美食主题，在过程中可以了解地理，历史，文化等东西。当然这些都离不开合适的主题介绍和讨论，不能看看就算了。</p>
-<h1 id="时间安排和效率度量"><a href="#时间安排和效率度量" class="headerlink" title="时间安排和效率度量"></a>时间安排和效率度量</h1><p>时间安排和效率度量这两个元素，是非常重要的概念。可以说，这会是受益终身的一个基本的技能。小朋友很多都是没有时间意识的，喜欢拖延。要通过合适的计划加强时间的概念，通过效率度量来提升效率，增加单位时间产出的价值，给孩子学习过程中挤出更多时间来自由安排。自由安排也是非常重要的，自我管理是个复杂的过程，也需要长期的锻炼。</p>
-<h1 id="同理心"><a href="#同理心" class="headerlink" title="同理心"></a>同理心</h1><p>在辅导过程中要注意心理上的同理心，这是一个双向的过程，既要通过反复多次的沟通了解孩子的想法，也要让小朋友了解我们练习的目标和初衷。这也是作为一个教练应该要掌握的技巧。</p>
-<h1 id="关于兴趣"><a href="#关于兴趣" class="headerlink" title="关于兴趣"></a>关于兴趣</h1><p>不是因为有兴趣而练习，而是练习中不断取得进步和成就感从而有了兴趣。</p>
-<h1 id="关于天赋"><a href="#关于天赋" class="headerlink" title="关于天赋"></a>关于天赋</h1><p>学习不会因为有天赋而变得简单，所有的成功都是和所花的时间成正比的，理解这个关系可以用这个公式：成绩=天赋<em>方法</em>时间</p>
-<h1 id="关于期望"><a href="#关于期望" class="headerlink" title="关于期望"></a>关于期望</h1><p>每个父母都希望自己的孩子，是全能，都能做的最好。但是这是不现实的，因为第一次有一个，最后也只有一个。怎么在成长和快乐之间取得一个平衡，这是见仁见智的事情 。可是作为一个最基本的元素，我觉得应该要养成一些通用的技能，如果说学习，坚持，懂得协作妥协。</p>
-<h1 id="教的方法"><a href="#教的方法" class="headerlink" title="教的方法"></a>教的方法</h1><p>一般来说，父母的行为可以分为以下四种：权威型、顾问型、说教型、教练型。我非常赞成用教练的方法和豆豆交流，会讨论怎么才能做的更好。当然这四种角色都是在穿插着扮演，不可能完全做到只用教练的方法。</p>
+          幼儿教学中的刻意练习正确的学习一定是处于学习区，既不是舒适区，也不是畏惧区。学习区一定是不舒服的，一定会有一定的困难，这个需要不断的强化其思维让其了解本质。总是不断地去疏导，让她养成习惯，不再畏惧学习区。同时学习的过程，应该是几个方面同时进行的，因为刚开始的时候，小朋友总是有很多还没有开发的领域，这
+          ...
 
-          
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/09/19/幼儿教学中的刻意练习/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
