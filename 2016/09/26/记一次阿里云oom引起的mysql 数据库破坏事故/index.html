@@ -1,0 +1,621 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="运维," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="记一次阿里云oom引起的mysql 数据库破坏事故遭遇昨天星期日，晚上9点左右时候在家正进行了我的哑铃训练，训练间隙的时候看到微信群里面同事说收到很多阿里云的监控短信，截图查了一下全部报500错误，而且是服务器上所有的网站都报错，心里马上做了一个判断，这不是一个单一问题，是个紧急事故。赶紧在微信服务号里面试了一下业务，果然不能使用了。
+检查问题点赶紧把健身活动停下来，为了不打扰家人休息把笔记本拿到">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次阿里云oom引起的mysql 数据库破坏事故">
+<meta property="og:url" content="https://qwetiop.github.io/2016/09/26/记一次阿里云oom引起的mysql 数据库破坏事故/index.html">
+<meta property="og:site_name" content="Darren的窝窝">
+<meta property="og:description" content="记一次阿里云oom引起的mysql 数据库破坏事故遭遇昨天星期日，晚上9点左右时候在家正进行了我的哑铃训练，训练间隙的时候看到微信群里面同事说收到很多阿里云的监控短信，截图查了一下全部报500错误，而且是服务器上所有的网站都报错，心里马上做了一个判断，这不是一个单一问题，是个紧急事故。赶紧在微信服务号里面试了一下业务，果然不能使用了。
+检查问题点赶紧把健身活动停下来，为了不打扰家人休息把笔记本拿到">
+<meta property="og:updated_time" content="2016-09-26T11:54:32.574Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记一次阿里云oom引起的mysql 数据库破坏事故">
+<meta name="twitter:description" content="记一次阿里云oom引起的mysql 数据库破坏事故遭遇昨天星期日，晚上9点左右时候在家正进行了我的哑铃训练，训练间隙的时候看到微信群里面同事说收到很多阿里云的监控短信，截图查了一下全部报500错误，而且是服务器上所有的网站都报错，心里马上做了一个判断，这不是一个单一问题，是个紧急事故。赶紧在微信服务号里面试了一下业务，果然不能使用了。
+检查问题点赶紧把健身活动停下来，为了不打扰家人休息把笔记本拿到">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://qwetiop.github.io/2016/09/26/记一次阿里云oom引起的mysql 数据库破坏事故/"/>
+
+  <title> 记一次阿里云oom引起的mysql 数据库破坏事故 | Darren的窝窝 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Darren的窝窝</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">所见、所知、所思，都是为了更好的自己,在这儿可以记录下经历的一些事实和一些想法，更好的了解自己也让人了解</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                记一次阿里云oom引起的mysql 数据库破坏事故
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-26T18:01:18+08:00" content="2016-09-26">
+              2016-09-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/技术分享/" itemprop="url" rel="index">
+                    <span itemprop="name">技术分享</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="记一次阿里云oom引起的mysql-数据库破坏事故"><a href="#记一次阿里云oom引起的mysql-数据库破坏事故" class="headerlink" title="记一次阿里云oom引起的mysql 数据库破坏事故"></a>记一次阿里云oom引起的mysql 数据库破坏事故</h1><h2 id="遭遇"><a href="#遭遇" class="headerlink" title="遭遇"></a>遭遇</h2><p>昨天星期日，晚上9点左右时候在家正进行了我的哑铃训练，训练间隙的时候看到微信群里面同事说收到很多阿里云的监控短信，截图查了一下全部报500错误，而且是服务器上所有的网站都报错，心里马上做了一个判断，这不是一个单一问题，是个紧急事故。赶紧在微信服务号里面试了一下业务，果然不能使用了。</p>
+<h2 id="检查问题点"><a href="#检查问题点" class="headerlink" title="检查问题点"></a>检查问题点</h2><p>赶紧把健身活动停下来，为了不打扰家人休息把笔记本拿到客厅里面，ssh到服务器进行检查.<br>首先检查资源和进程情况<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ps aux </div><div class="line">top</div><div class="line">free</div></pre></td></tr></table></figure></p>
+<p>看了后发现是mysql 进程不在了，估计原因是http请求不到数据库服务，所以报500错误。按理说服务正常情况下不应该消失的，这儿一定有还不了解的原因。<br>接着试着手动恢复服务<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">service mysql  start</div></pre></td></tr></table></figure></p>
+<p>发现启动失败了，这很不正常，赶紧查看sql的错误日志<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cat /usr/local/mysql/var/iZ25mnxexsd.err</div></pre></td></tr></table></figure></p>
+<p>果然发现了异常，mysql 有异常重启的现象，并且在重启的时候报了错误后就shutdown<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">InnoDB: Error: checksum mismatch in data file  /usr/local/mysql/var/ibdata1</div></pre></td></tr></table></figure></p>
+<h2 id="寻找解决办法"><a href="#寻找解决办法" class="headerlink" title="寻找解决办法"></a>寻找解决办法</h2><p>说实话，以前一直是啥都做点，但是没有这么专业的做过mysql的运维，对这个情况实在是没有经历过。但是这难不倒我，有万能的google大神在。<br>看到有文章说，这种情况有可能是内存不够，造成的oom ，dmesg 一看，果真是oom 造成的killer。我想这个可真悲惨，这么巧这次就把数据破坏了。<br>不出所料，找到一篇一篇比较清楚的解决文档<br><a href="http://blog.csdn.net/fdipzone/article/details/51246665" target="_blank" rel="external">http://blog.csdn.net/fdipzone/article/details/51246665</a></p>
+<p>不过看到解决方案，有点懵逼了。居然需要删除老数据，重建数据库。这时候有几个方案给我选择:</p>
+<ul>
+<li>用阿里云的快照把整个服务器恢复，这样最快</li>
+<li>备份最新数据，重建数据库，这需要先把sql以只读方式启动起来，不丢失白天的数据</li>
+<li>使用凌晨的数据备份，重建数据库，比较简单，但是会丢失白天的数据。<h2 id="恢复数据"><a href="#恢复数据" class="headerlink" title="恢复数据"></a>恢复数据</h2>心里做了一个评估，后两种方案方案都没有做过，不知道操作情况会不会顺利，所以就选择了第一种方案。<br>接下来，为了保护现场数据，还是立即做了一个快照，同时还把sql以只读方式启动，把数据做了个导出备用。<br>最后要去操作恢复快照的时候，又发生了一个意外，因为阿里云是保定的同事的手机，恢复的时候要验证码，居然这个时候人失连了，电话打了没人接，微信没人回。<br>等了5分钟，实在没有办法了，恢复业务重要啊，只有选择第2钟方案了，做数据库重建。话说没有选择就是最好的选择啊，这真实一个道理，祝愿能一次恢复成功吧。<br>接下来就按照网上的指南开始操作<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">删除/usr/local/mysql/var下的所有文件</div><div class="line">用mysql_install_db 初始化数据库</div><div class="line">用mysqladmin 修改root 密码</div><div class="line">启动数据库</div><div class="line">登录创建用户并授权</div><div class="line">导入数据库文件</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>在导入的时候又出现了些异常，有一个表的数据怎么也导入不进去，查看了下这个表数据不重要，就打开sql文件，把所有的相关insert 项全部删除掉，最后顺利重建了数据库</p>
+<p>最后把所有的其他业务重新启动了下，检查业务运行正常，这时已经是12点了，我的肌肉增长计划又这样华丽的被耽搁了。</p>
+<h2 id="加强防护"><a href="#加强防护" class="headerlink" title="加强防护"></a>加强防护</h2><p>作为一个有强烈责任感的人可不能这样就完了，心里想着万一睡觉了，晚上由于业务量的原因 sql 又被干掉了怎么办。分析了下前面出错是由于内存不够所以OOM了，所以再仔细看了free信息。这个时候发现，阿里云默认居然是没有开启swap的。<br>OK，赶紧创建了一个swap文件，挂载上去，free看到swap 容量后感觉放心多了。<br>赶紧洗洗睡了，困死了，明天一早还要开会呢。</p>
+<h2 id="善后"><a href="#善后" class="headerlink" title="善后"></a>善后</h2><p>今天白天把阿里云的服务器做了一个扩容，这样应该很长一段时间可以安心的睡觉了。</p>
+<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>这个业务由于还在初期，所以前期租用的资源都是以节约为原则，所以造成了在业务扩充的时候没有及时的扩展资源。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/运维/" rel="tag">#运维</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/24/一次快速微信推送bug修改过程/" rel="next" title="一次快速微信推送bug修改过程">
+                <i class="fa fa-chevron-left"></i> 一次快速微信推送bug修改过程
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Darren" />
+          <p class="site-author-name" itemprop="name">Darren</p>
+          <p class="site-description motion-element" itemprop="description">学习心得 幼儿教育 个人成长 团队建设 健身 旅游</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#记一次阿里云oom引起的mysql-数据库破坏事故"><span class="nav-number">1.</span> <span class="nav-text">记一次阿里云oom引起的mysql 数据库破坏事故</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#遭遇"><span class="nav-number">1.1.</span> <span class="nav-text">遭遇</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#检查问题点"><span class="nav-number">1.2.</span> <span class="nav-text">检查问题点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#寻找解决办法"><span class="nav-number">1.3.</span> <span class="nav-text">寻找解决办法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#恢复数据"><span class="nav-number">1.4.</span> <span class="nav-text">恢复数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加强防护"><span class="nav-number">1.5.</span> <span class="nav-text">加强防护</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#善后"><span class="nav-number">1.6.</span> <span class="nav-text">善后</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#说明"><span class="nav-number">1.7.</span> <span class="nav-text">说明</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Darren</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
